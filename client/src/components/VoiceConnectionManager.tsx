@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Peer from 'peerjs';
 import io from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
@@ -64,7 +64,7 @@ const VoiceConnectionManager: React.FC = () => {
     };
   }, [activeVoiceChannel, user]);
 
-  const connectToNewUser = (userId: string, stream: MediaStream) => {
+  const connectToNewUser = useCallback((userId: string, stream: MediaStream) => {
     const call = myPeer.current?.call(userId, stream);
     call?.on('stream', (userVideoStream) => {
        addStream(userId, userVideoStream);
@@ -73,7 +73,7 @@ const VoiceConnectionManager: React.FC = () => {
         removeStream(userId);
     });
     peersRef.current[userId] = call;
-  };
+  }, [addStream, removeStream]);
 
   const toggleMute = () => {
     if (myStream.current) {

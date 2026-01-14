@@ -3,11 +3,25 @@ import Peer from 'peerjs';
 import io, { Socket } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 
+interface CallParticipant {
+  userId: string;
+  username: string;
+  avatar?: string;
+  mediaState: {
+    microphone: boolean;
+    camera: boolean;
+    screenShare: boolean;
+    volume: number;
+  };
+  isSpeaking: boolean;
+}
+
 interface CallContextType {
   callState: 'idle' | 'incoming' | 'outgoing' | 'connected';
   callerId: string | null;
   localStream: MediaStream | null;
   remoteStreams: { [userId: string]: MediaStream };
+  participants: CallParticipant[];
   initiateCall: (receiverId: string, type: 'voice' | 'video') => void;
   acceptCall: () => void;
   rejectCall: () => void;
@@ -34,6 +48,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [callerId, setCallerId] = useState<string | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<{ [userId: string]: MediaStream }>({});
+  const [participants, setParticipants] = useState<CallParticipant[]>([]);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -54,8 +69,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Auto-answer for mesh networking in channels, but for 1:1 we might want manual
       // For now, let's assume if we are in 'connected' state, we auto-answer (adding to group)
       // If 'idle', it's a new call
-      
-      // Simplified: Just answer everything for now to get it working, 
+
+      // Simplified: Just answer everything for now to get it working,
       // but in real app we'd check state.
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         setLocalStream(stream);
@@ -95,7 +110,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
       peerRef.current?.destroy();
       localStream?.getTracks().forEach(track => track.stop());
     };
-  }, [user]);
+  }, [user, localStream]);
 
   const initiateCall = (receiverId: string, type: 'voice' | 'video') => {
     setCallState('outgoing');
@@ -193,6 +208,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
       callerId,
       localStream,
       remoteStreams,
+      participants,
       initiateCall,
       acceptCall,
       rejectCall,

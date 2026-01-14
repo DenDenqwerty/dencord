@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { ExpressPeerServer } from 'peer';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import multer from 'multer';
@@ -48,10 +49,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 app.set('io', io);
 
+app.use('/peerjs', ExpressPeerServer(httpServer, { debug: true }));
+
 const PORT = process.env.PORT || 5000;
+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/discord-clone';
 
 const connectDB = async () => {

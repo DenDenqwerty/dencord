@@ -24,8 +24,8 @@ const Register: React.FC = () => {
       return alert('Failed to register');
     }
 
-    if ('token' in data.payload) {
-      window.localStorage.setItem('token', data.payload.token);
+    if (typeof data.payload === 'object' && data.payload !== null && 'token' in data.payload) {
+      window.localStorage.setItem('token', (data.payload as { token: string }).token);
     }
   };
 
