@@ -1,23 +1,21 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-export interface IServer extends Document {
+export interface Server {
+  _id: string;
   name: string;
-  iconUrl?: string;
-  owner: mongoose.Types.ObjectId;
-  members: mongoose.Types.ObjectId[];
-  channels: mongoose.Types.ObjectId[];
+  owner: string;
+  members: string[];
+  channels: string[];
   createdAt: Date;
-  updatedAt: Date;
 }
 
-const ServerSchema: Schema = new Schema({
-  name: { type: String, required: true, trim: true },
-  iconUrl: { type: String },
+const ServerSchema = new Schema({
+  name: { type: String, required: true },
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
-export default mongoose.model<IServer>('Server', ServerSchema);
+const ServerModel = model('Server', ServerSchema);
+
+export default ServerModel;

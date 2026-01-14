@@ -18,14 +18,11 @@ const Register: React.FC = () => {
   });
 
   const onSubmit = async (values: any) => {
-    const data = await dispatch(fetchRegister(values));
-
-    if (!data.payload) {
-      return alert('Failed to register');
-    }
-
-    if (typeof data.payload === 'object' && data.payload !== null && 'token' in data.payload) {
-      window.localStorage.setItem('token', (data.payload as { token: string }).token);
+    try {
+      const result = await dispatch(fetchRegister(values)).unwrap();
+      window.localStorage.setItem('token', result.token);
+    } catch (error) {
+      alert('Failed to register');
     }
   };
 

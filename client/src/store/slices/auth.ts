@@ -8,12 +8,16 @@ interface User {
   avatar?: string;
 }
 
-export const fetchAuth = createAsyncThunk<User, any>('auth/fetchAuth', async (params: any) => {
+interface AuthResponse extends User {
+  token: string;
+}
+
+export const fetchAuth = createAsyncThunk<AuthResponse, {email: string, password: string}>('auth/fetchAuth', async (params) => {
   const { data } = await axios.post('/auth/login', params);
   return data;
 });
 
-export const fetchRegister = createAsyncThunk<User, any>('auth/fetchRegister', async (params: any) => {
+export const fetchRegister = createAsyncThunk<AuthResponse, {username: string, email: string, password: string}>('auth/fetchRegister', async (params) => {
   const { data } = await axios.post('/auth/register', params);
   return data;
 });
@@ -44,7 +48,12 @@ const authSlice = createSlice({
       })
       .addCase(fetchAuth.fulfilled, (state, action) => {
         state.status = 'loaded';
-        state.data = action.payload;
+        state.data = {
+          _id: action.payload._id,
+          username: action.payload.username,
+          email: action.payload.email,
+          avatar: action.payload.avatar,
+        };
       })
       .addCase(fetchAuth.rejected, (state) => {
         state.status = 'error';

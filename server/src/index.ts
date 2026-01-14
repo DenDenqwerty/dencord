@@ -51,7 +51,7 @@ const upload = multer({ storage });
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.set('io', io);
 
-app.use('/peerjs', ExpressPeerServer(httpServer, { debug: true }));
+app.use('/peerjs', ExpressPeerServer(httpServer));
 
 const PORT = process.env.PORT || 5000;
 

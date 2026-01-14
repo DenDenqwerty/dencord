@@ -17,14 +17,11 @@ const Login: React.FC = () => {
   });
 
   const onSubmit = async (values: any) => {
-    const data = await dispatch(fetchAuth(values));
-
-    if (!data.payload) {
-      return alert('Failed to login');
-    }
-
-    if ('token' in data.payload) {
-      window.localStorage.setItem('token', data.payload.token);
+    try {
+      const result = await dispatch(fetchAuth(values)).unwrap();
+      window.localStorage.setItem('token', result.token);
+    } catch (error) {
+      alert('Failed to login');
     }
   };
 
